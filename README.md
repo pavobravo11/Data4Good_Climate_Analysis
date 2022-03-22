@@ -1,13 +1,13 @@
 # Data4Good_Climate_Analysis
 ### A micro-project done by a number of volunteers from the Data4Good for the purpose of raising awareness of the climate situation in Calgary.
 
-Team Members:
-Joan V
-Jesreen Jamaldeen
-Justin Selleck
-Katia Santos
-Manuel Schönlaub
-Medhat S
+Team Members: <br>
+Joan V<br>
+Jesreen Jamaldeen<br>
+Justin Selleck<br>
+Katia Santos<br>
+Manuel Schönlaub<br>
+Medhat S<br>
 
 **About this project:**
 Climate change has significant environmental, health, and socio-economic impacts. The long-term effects of climate change are felt in increased intensity and frequency of extreme weather that are disrupting lives in every country on every continent.  While there have been significant climate change events in the Earth’s history, the current changes are occurring rapidly and are not due to natural causes.  Anthropogenic practices, such as burning of fossil fuels and forest loss, contribute to increased carbon dioxide (CO2) and other greenhouse gases (GHGs) in the atmosphere. According to the United Nations, greenhouse gases rose to new records in 2019, resulting in the second warmest year on record.  While the early stages of the COVID-19 pandemic saw a drop in CO2 emissions, this event was temporary, and emissions will gradually return to higher levels as economies begin to recover.
