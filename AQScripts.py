@@ -8,38 +8,38 @@ import pandas as pd
 import json
 from shapely.geometry import shape
 from geopy.distance import distance
+import plotly.express as px
 
 
 # This function is a support function for the two functions that will run in the main function
 # This will return the station data to pass on to the Jupyternotebook
 def get_stations():
-
     # Get the city data
     city = requests.get("https://website-api.airvisual.com/v1/routes/canada/alberta/calgary")
 
     # Get the stations data
-    stations = requests.get(f"https://website-api.airvisual.com/v1/stations/by/cityID/{city.json().get('id')}?sortBy=aqi&sortOrder=asc&units.temperature=celsius&units.distance=kilometer&units.pressure=millibar&AQI=US&language=en")
+    stations = requests.get \
+        (f"https://website-api.airvisual.com/v1/stations/by/cityID/{city.json().get('id')}?sortBy=aqi&sortOrder=asc&units.temperature=celsius&units.distance=kilometer&units.pressure=millibar&AQI=US&language=en")
 
     return stations
 
 
 ## This method is used to get the data using request and then returns a pandas datafram
 # No Formal parameters, and the return type is a pandas dataframe, as well as a dictionary
-# containing all of the station names 
+# containing all of the station names
 def get_latest_data(stations: json):
-
     # Main dataframe that will store and the data to be returned
     data_df = pd.DataFrame()
 
     # Get all of the stations AQ data and add them to one dataframe
     for count, station in enumerate(stations.json()):
-        
         # Get data for station and convert to data frame
-        station_data = requests.get(f"https://website-api.airvisual.com/v1/stations/{stations.json()[count].get('id')}/measurements?units.temperature=celsius&units.distance=kilometer&units.pressure=millibar&AQI=US&language=en")
+        station_data = requests.get \
+            (f"https://website-api.airvisual.com/v1/stations/{stations.json()[count].get('id')}/measurements?units.temperature=celsius&units.distance=kilometer&units.pressure=millibar&AQI=US&language=en")
         stations_tempdf = pd.json_normalize(station_data.json()['measurements']['hourly'])
 
         # Add a name column
-        stations_tempdf.loc[:,'station_name'] = station['name']
+        stations_tempdf.loc[:, 'station_name'] = station['name']
 
         # Use Forward fill to fill in missing data
         stations_tempdf['aqi'] = stations_tempdf['aqi'].fillna(method='ffill')
@@ -48,9 +48,8 @@ def get_latest_data(stations: json):
         stations_tempdf['aqi'] = stations_tempdf['aqi'].replace(pd.NA, 0)
 
         # Get the latest data only
-        stations_df_row = pd.DataFrame(stations_tempdf.iloc[-1][['ts','aqi','station_name']].copy())
+        stations_df_row = pd.DataFrame(stations_tempdf.iloc[-1][['ts', 'aqi', 'station_name']].copy())
         stations_df_column = stations_df_row.transpose()
-
 
         data_df = pd.concat([data_df, stations_df_column], ignore_index=True)
 
@@ -60,15 +59,16 @@ def get_latest_data(stations: json):
 # This function is used to find all the coordinates for the stations from the Air-Visual API
 # Return: Dictionary with all stations in the request {station name : (latitude, longitude)}
 def get_station_coords(stations: json):
-
     # The coordinate data will be stored in here
     stations_with_coordinates = {}
 
     for count in range(len(stations.json())):
         # Get all the info for stations
-        station_info = requests.get(f"https://website-api.airvisual.com/v1/stations/{stations.json()[count]['id']}").json()
+        station_info = requests.get \
+            (f"https://website-api.airvisual.com/v1/stations/{stations.json()[count]['id']}").json()
 
-        stations_with_coordinates[station_info['name']] = (station_info['coordinates']['latitude'], station_info['coordinates']['longitude'])
+        stations_with_coordinates[station_info['name']] = \
+            (station_info['coordinates']['latitude'], station_info['coordinates']['longitude'])
 
     return stations_with_coordinates
 
@@ -115,38 +115,49 @@ def map_closest_station(sectors: dict, stations: dict):
 def merge_sector_data(sectors_mapped: dict, data_df: pd.DataFrame):
     # Convert Dictionary to dataframe
     sectors_df = pd.DataFrame.from_dict(
-        sectors_mapped, 
-        orient = 'index',
-        columns = ['station_name'])
+        sectors_mapped,
+        orient='index',
+        columns=['station_name'])
 
     # Fix indexes and column names
-    sectors_df = sectors_df.reset_index().rename(columns={'index':'name'})
+    sectors_df = sectors_df.reset_index().rename(columns={'index': 'name'})
 
     # merge and return df
-    return sectors_df.merge(data_df, on = 'station_name')
+    return sectors_df.merge(data_df, on='station_name')
 
 
 def runner():
     stations = get_stations()
 
-    data_df = get_latest_data(stations = stations)
+    data_df = get_latest_data(stations=stations)
 
-    stations_with_coords = get_station_coords(stations = stations)
+    stations_with_coords = get_station_coords(stations=stations)
 
-    calgary_sectors = json.load(open("Calgary_Climate_Analysis\Community District Boundaries.geojson"))
+    calgary_sectors = json.load(open("Community District Boundaries.geojson"))
 
-    sectors_with_coords = get_city_sectors(sectors_json = calgary_sectors)
+    sectors_with_coords = get_city_sectors(sectors_json=calgary_sectors)
 
     sectors_mapped = map_closest_station(
-        sectors = sectors_with_coords,
-        stations = stations_with_coords
+        sectors=sectors_with_coords,
+        stations=stations_with_coords
     )
 
     main_df = merge_sector_data(
-        sectors_mapped = sectors_mapped,
-        data_df = data_df)
+        sectors_mapped=sectors_mapped,
+        data_df=data_df)
 
-    print(main_df)
+    fig = px.choropleth_mapbox(main_df,
+                               locations='name',
+                               featureidkey='properties.name',
+                               geojson=calgary_sectors,
+                               color='aqi',
+                               mapbox_style='carto-positron',
+                               center={'lat': 51.033639, 'lon': -114.059655},
+                               zoom=8.2,
+                               opacity=0.7,
+                               title="Calgary's Air Quality By Sector Using Air Quality Index (AQI)")
+    fig.update_geos(fitbounds='locations')
+    fig.write_json("input/aiq_map.json")
 
 
 if __name__ == '__main__':
