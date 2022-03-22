@@ -1,0 +1,44 @@
+name: GitHub Pages
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Setup markdown-styles
+        run: npm install -g markdown-styles
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.0.0
+      - name: Setup caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            .venv
+          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.in-project true --local
+          poetry install --no-dev
+      - name: Update map
+        run: poetry run python ./AQScripts.py
+      - name: Generate website
+        run:  generate-md --layout layout
+      - name: Publish website
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
