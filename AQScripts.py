@@ -198,10 +198,10 @@ def runner():
         )
     )
 
-    fig.show()
+    # fig.show()
 
 
-    # fig.write_json("input/aiq_map.json")
+    fig.write_json("input/aiq_map.json")
 
 
 if __name__ == '__main__':
