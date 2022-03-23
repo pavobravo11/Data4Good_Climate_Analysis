@@ -9,6 +9,7 @@ import json
 from shapely.geometry import shape
 from geopy.distance import distance
 import plotly.express as px
+import plotly.io as pio
 
 
 # This function is a support function for the two functions that will run in the main function
@@ -127,6 +128,8 @@ def merge_sector_data(sectors_mapped: dict, data_df: pd.DataFrame):
 
 
 def runner():
+    pio.renderers.default = 'firefox'
+
     stations = get_stations()
 
     data_df = get_latest_data(stations=stations)
@@ -146,18 +149,59 @@ def runner():
         sectors_mapped=sectors_mapped,
         data_df=data_df)
 
+    # Change data types for continues sequence in aqi
+    main_df['aqi'] = main_df['aqi'].apply(int)
+
+
     fig = px.choropleth_mapbox(main_df,
-                               locations='name',
-                               featureidkey='properties.name',
-                               geojson=calgary_sectors,
-                               color='aqi',
-                               mapbox_style='carto-positron',
-                               center={'lat': 51.033639, 'lon': -114.059655},
-                               zoom=8.2,
-                               opacity=0.7,
-                               title="Calgary's Air Quality By Sector Using Air Quality Index (AQI)")
-    fig.update_geos(fitbounds='locations')
-    fig.write_json("input/aiq_map.json")
+                    locations='name',
+                    featureidkey='properties.name',
+                    geojson=calgary_sectors,
+                    color='aqi',
+                    color_continuous_scale=[
+                        (0, "green"), 
+                        (0.25, "yellow"), 
+                        (0.33, "orange"), 
+                        (0.5, "red"), 
+                        (0.66, "purple"), 
+                        (1, "purple")
+                    ],
+                    range_color=[0, 300],
+                    mapbox_style='carto-darkmatter',
+                    center={'lat':51.033639, 'lon':-114.059655},
+                    zoom=8.8,
+                    opacity=0.5,
+                    title="Calgary's Air Quality By Sector Using Air Quality Index (AQI)",
+                    width=1000,
+                    height=550,
+                    template='plotly_dark',
+                    labels=dict(aqi='AQI')
+        )
+
+    fig.update_layout(
+        margin=dict(l=20, r=20, t=80, b=20),
+        coloraxis_colorbar=dict(
+            tickvals=[0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300],
+            ticktext=[
+                '0',
+                '0 - 50: Good to Moderate',
+                '50',
+                '51 - 100: Moderate to Unhealthy for Sensitive Groups',
+                '100',
+                '101 - 150: Unhealthy for Some to Unhealthy to All',
+                '150',
+                '151 - 200: Unhealthy to Very Unhealthy',
+                '200',
+                '201 - 300: Very Unhealthy to Hazardous',
+                '300 or More: Health Warning'
+            ]
+        )
+    )
+
+    fig.show()
+
+
+    # fig.write_json("input/aiq_map.json")
 
 
 if __name__ == '__main__':
