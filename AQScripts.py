@@ -11,7 +11,7 @@ from geopy.distance import distance
 import plotly.express as px
 
 
-# This function is a support function for the two functions that will run in the main function
+# This function is a support two functions that will run in the main function
 # This will return the station data to pass on to the Jupyternotebook
 def get_stations():
     # Get the city data
@@ -48,7 +48,7 @@ def get_latest_data(stations: json):
         stations_tempdf['aqi'] = stations_tempdf['aqi'].replace(pd.NA, 0)
 
         # Get the latest data only
-        stations_df_row = pd.DataFrame(stations_tempdf.iloc[-1][['ts', 'aqi', 'station_name']].copy())
+        stations_df_row = pd.DataFrame(stations_tempdf.iloc[-1][['aqi', 'station_name']].copy())
         stations_df_column = stations_df_row.transpose()
 
         data_df = pd.concat([data_df, stations_df_column], ignore_index=True)
@@ -86,6 +86,58 @@ def get_city_sectors(sectors_json: json):
     return sectors_with_coordinates
 
 
+# This function will return the the IDW weight to then map our aqi to
+# @params: A sectoctors with coordinates dictionary
+# returns: A dictionary
+def get_idw(sectors_with_coordinates: dict):
+    for sectors, coor
+
+
+import numpy as np
+# Source of this algorithm
+# https://www.geodose.com/2019/09/creating-idw-interpolation-from-scratch-python.html
+def idw_npoint(xz,yz,n_point,p):
+    r=10 #block radius iteration distance
+    nf=0
+    while nf<=n_point: #will stop when np reaching at least n_point
+        x_block=[]
+        y_block=[]
+        z_block=[]
+        r +=10 # add 10 unit each iteration
+        xr_min=xz-r
+        xr_max=xz+r
+        yr_min=yz-r
+        yr_max=yz+r
+        for i in range(len(x)):
+            # condition to test if a point is within the block
+            if ((x[i]>=xr_min and x[i]<=xr_max) and (y[i]>=yr_min and y[i]<=yr_max)):
+                x_block.append(x[i])
+                y_block.append(y[i])
+                z_block.append(z[i])
+        nf=len(x_block) #calculate number of point in the block
+    
+    #calculate weight based on distance and p value
+    w_list=[]
+    for j in range(len(x_block)):
+        d=distance(xz,yz,x_block[j],y_block[j])
+        if d>0:
+            w=1/(d**p)
+            w_list.append(w)
+            z0=0
+        else:
+            w_list.append(0) #if meet this condition, it means d<=0, weight is set to 0
+    
+    #check if there is 0 in weight list
+    w_check=0 in w_list
+    if w_check==True:
+        idx=w_list.index(0) # find index for weight=0
+        z_idw=z_block[idx] # set the value to the current sample value
+    else:
+        wt=np.transpose(w_list)
+        z_idw=np.dot(z_block,wt)/sum(w_list) # idw calculation using dot product
+    return z_idw
+
+
 # This function will find the shortest distance between two points
 # Input: two dictionaries {location: (lat, lon)}
 # Return: dictionary {sector: closest station}
@@ -120,10 +172,14 @@ def merge_sector_data(sectors_mapped: dict, data_df: pd.DataFrame):
         columns=['station_name'])
 
     # Fix indexes and column names
-    sectors_df = sectors_df.reset_index().rename(columns={'index': 'name'})
+    sectors_df = sectors_df.reset_index().rename(columns={'index': 'name'}).copy()
 
     # merge and return df
-    return sectors_df.merge(data_df, on='station_name')
+    main_df = sectors_df.merge(data_df, on='station_name').sort_values('aqi')
+
+    return main_df
+
+
 
 
 def runner():
@@ -162,3 +218,4 @@ def runner():
 
 if __name__ == '__main__':
     runner()
+
