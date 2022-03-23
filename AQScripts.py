@@ -9,9 +9,10 @@ import json
 from shapely.geometry import shape
 from geopy.distance import distance
 import plotly.express as px
+import plotly.io as pio
 
 
-# This function is a support two functions that will run in the main function
+# This function is a support function for the two functions that will run in the main function
 # This will return the station data to pass on to the Jupyternotebook
 def get_stations():
     # Get the city data
@@ -48,7 +49,7 @@ def get_latest_data(stations: json):
         stations_tempdf['aqi'] = stations_tempdf['aqi'].replace(pd.NA, 0)
 
         # Get the latest data only
-        stations_df_row = pd.DataFrame(stations_tempdf.iloc[-1][['aqi', 'station_name']].copy())
+        stations_df_row = pd.DataFrame(stations_tempdf.iloc[-1][['ts', 'aqi', 'station_name']].copy())
         stations_df_column = stations_df_row.transpose()
 
         data_df = pd.concat([data_df, stations_df_column], ignore_index=True)
@@ -86,58 +87,6 @@ def get_city_sectors(sectors_json: json):
     return sectors_with_coordinates
 
 
-# This function will return the the IDW weight to then map our aqi to
-# @params: A sectoctors with coordinates dictionary
-# returns: A dictionary
-def get_idw(sectors_with_coordinates: dict):
-    for sectors, coor
-
-
-import numpy as np
-# Source of this algorithm
-# https://www.geodose.com/2019/09/creating-idw-interpolation-from-scratch-python.html
-def idw_npoint(xz,yz,n_point,p):
-    r=10 #block radius iteration distance
-    nf=0
-    while nf<=n_point: #will stop when np reaching at least n_point
-        x_block=[]
-        y_block=[]
-        z_block=[]
-        r +=10 # add 10 unit each iteration
-        xr_min=xz-r
-        xr_max=xz+r
-        yr_min=yz-r
-        yr_max=yz+r
-        for i in range(len(x)):
-            # condition to test if a point is within the block
-            if ((x[i]>=xr_min and x[i]<=xr_max) and (y[i]>=yr_min and y[i]<=yr_max)):
-                x_block.append(x[i])
-                y_block.append(y[i])
-                z_block.append(z[i])
-        nf=len(x_block) #calculate number of point in the block
-    
-    #calculate weight based on distance and p value
-    w_list=[]
-    for j in range(len(x_block)):
-        d=distance(xz,yz,x_block[j],y_block[j])
-        if d>0:
-            w=1/(d**p)
-            w_list.append(w)
-            z0=0
-        else:
-            w_list.append(0) #if meet this condition, it means d<=0, weight is set to 0
-    
-    #check if there is 0 in weight list
-    w_check=0 in w_list
-    if w_check==True:
-        idx=w_list.index(0) # find index for weight=0
-        z_idw=z_block[idx] # set the value to the current sample value
-    else:
-        wt=np.transpose(w_list)
-        z_idw=np.dot(z_block,wt)/sum(w_list) # idw calculation using dot product
-    return z_idw
-
-
 # This function will find the shortest distance between two points
 # Input: two dictionaries {location: (lat, lon)}
 # Return: dictionary {sector: closest station}
@@ -162,60 +111,129 @@ def map_closest_station(sectors: dict, stations: dict):
     return map_sector_station
 
 
-# This function will create a master dataframe to throw on the plotly map
+# This function will create a df based on the dictionary passed as well as fix its indexes
 # Return: merged pandas dataframe
-def merge_sector_data(sectors_mapped: dict, data_df: pd.DataFrame):
+def sector_to_df(sectors_mapped: dict):
     # Convert Dictionary to dataframe
     sectors_df = pd.DataFrame.from_dict(
         sectors_mapped,
-        orient='index',
-        columns=['station_name'])
+        orient='index')
 
     # Fix indexes and column names
-    sectors_df = sectors_df.reset_index().rename(columns={'index': 'name'}).copy()
+    sectors_df = sectors_df.reset_index().rename(columns={
+        'index': 'name',
+        '0': 'y_coord',
+        '1': 'x_coord' 
+    })
 
     # merge and return df
-    main_df = sectors_df.merge(data_df, on='station_name').sort_values('aqi')
+    return sectors_df
 
-    return main_df
 
+import numpy as np
+from scipy.interpolate import RBFInterpolator
+
+# Using the aqi from the stations we will estimate the aqi of a sector using
+# Interpolation distance weight
+def get_aqi_with_RBF(aqi_df: pd.DataFrame, sectors_with_coordinates: dict):
+    sector_aqi_interpolated_dict = {}
+    
+    # Stations x, y coordinate
+    y = [np.array(tup) for idx, tup in aqi_df['coords'].items()]
+    z = aqi_df['aqi'].to_numpy() # aqi value
+
+    interp = RBFInterpolator(y, z, kernel='linear')
+    
+    coords_np = [np.array(coords) for k, coords in sectors_with_coordinates.items()]
+    sector_aqi_interpolated = interp.__call__(coords_np)
+
+    for count, sector in enumerate(sectors_with_coordinates.keys()):
+        sector_aqi_interpolated_dict[sector] = round(sector_aqi_interpolated[count], 2)
+
+    return sector_aqi_interpolated_dict
 
 
 
 def runner():
+    pio.renderers.default = 'firefox'
+
     stations = get_stations()
 
     data_df = get_latest_data(stations=stations)
 
     stations_with_coords = get_station_coords(stations=stations)
 
+    data_df['coords'] = data_df['station_name'].map(stations_with_coords)
+
     calgary_sectors = json.load(open("Community District Boundaries.geojson"))
 
     sectors_with_coords = get_city_sectors(sectors_json=calgary_sectors)
 
-    sectors_mapped = map_closest_station(
-        sectors=sectors_with_coords,
-        stations=stations_with_coords
+    sectors_df = sector_to_df(
+        sectors_mapped=sectors_with_coords,
     )
 
-    main_df = merge_sector_data(
-        sectors_mapped=sectors_mapped,
-        data_df=data_df)
+    interpolation_dict = get_aqi_with_RBF(data_df, sectors_with_coords)
+
+    sectors_df['aqi'] = sectors_df['name'].map(interpolation_dict)
+
+    main_df = sectors_df.copy()
+
+    # Change data types for continues sequence in aqi
+    main_df['aqi'] = main_df['aqi'].apply(int)
+
+    print(main_df)
 
     fig = px.choropleth_mapbox(main_df,
-                               locations='name',
-                               featureidkey='properties.name',
-                               geojson=calgary_sectors,
-                               color='aqi',
-                               mapbox_style='carto-positron',
-                               center={'lat': 51.033639, 'lon': -114.059655},
-                               zoom=8.2,
-                               opacity=0.7,
-                               title="Calgary's Air Quality By Sector Using Air Quality Index (AQI)")
-    fig.update_geos(fitbounds='locations')
-    fig.write_json("input/aiq_map.json")
+                    locations='name',
+                    featureidkey='properties.name',
+                    geojson=calgary_sectors,
+                    color='aqi',
+                    color_continuous_scale=[
+                        (0, "green"), 
+                        (0.25, "yellow"), 
+                        (0.33, "orange"), 
+                        (0.5, "red"), 
+                        (0.66, "purple"), 
+                        (1, "purple")
+                    ],
+                    range_color=[0, 300],
+                    mapbox_style='carto-darkmatter',
+                    center={'lat':51.033639, 'lon':-114.059655},
+                    zoom=8.8,
+                    opacity=0.5,
+                    title="Calgary's Real-Time Air Quality By Sector Using Air Quality Index (AQI)",
+                    width=1200,
+                    height=550,
+                    template='plotly_dark',
+                    labels=dict(aqi='AQI')
+        )
+
+    fig.update_layout(
+        margin=dict(l=20, r=20, t=80, b=20),
+        coloraxis_colorbar=dict(
+            tickvals=[0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300],
+            ticktext=[
+                '0',
+                '0 - 50: Good',
+                '50',
+                '51 - 100: Moderate',
+                '100',
+                '101 - 150: Unhealthy for Sentive Individuals',
+                '150',
+                '151 - 200: Unhealthy to All',
+                '200',
+                '201 - 300: Very Unhealthy',
+                '300 or More: Hazardous, Health Warning'
+            ]
+        )
+    )
+
+    fig.show()
+
+
+    # fig.write_json("input/aiq_map.json")
 
 
 if __name__ == '__main__':
     runner()
-
