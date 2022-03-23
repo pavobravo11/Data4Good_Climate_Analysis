@@ -172,7 +172,7 @@ def runner():
                     zoom=8.8,
                     opacity=0.5,
                     title="Calgary's Air Quality By Sector Using Air Quality Index (AQI)",
-                    width=1000,
+                    width=1200,
                     height=550,
                     template='plotly_dark',
                     labels=dict(aqi='AQI')
@@ -184,16 +184,16 @@ def runner():
             tickvals=[0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300],
             ticktext=[
                 '0',
-                '0 - 50: Good to Moderate',
+                '0 - 50: Good',
                 '50',
-                '51 - 100: Moderate to Unhealthy for Sensitive Groups',
+                '51 - 100: Moderate',
                 '100',
-                '101 - 150: Unhealthy for Some to Unhealthy to All',
+                '101 - 150: Unhealthy for Sentive Individuals',
                 '150',
-                '151 - 200: Unhealthy to Very Unhealthy',
+                '151 - 200: Unhealthy to All',
                 '200',
-                '201 - 300: Very Unhealthy to Hazardous',
-                '300 or More: Health Warning'
+                '201 - 300: Very Unhealthy',
+                '300 or More: Hazardous, Health Warning'
             ]
         )
     )
