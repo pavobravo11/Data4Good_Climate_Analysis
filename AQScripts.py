@@ -182,8 +182,6 @@ def runner():
     # Change data types for continues sequence in aqi
     main_df['aqi'] = main_df['aqi'].apply(int)
 
-    print(main_df)
-
     fig = px.choropleth_mapbox(main_df,
                     locations='name',
                     featureidkey='properties.name',
