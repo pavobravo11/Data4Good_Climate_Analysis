@@ -9,7 +9,85 @@ import json
 from shapely.geometry import shape
 from geopy.distance import distance
 import plotly.express as px
-import plotly.io as pio
+
+def runner():
+    stations = get_stations()
+
+    data_df = get_latest_data(stations=stations)
+
+    stations_with_coords = get_station_coords(stations=stations)
+
+    data_df['coords'] = data_df['station_name'].map(stations_with_coords)
+
+    calgary_sectors = json.load(open("Community District Boundaries.geojson"))
+
+    sectors_with_coords = get_city_sectors(sectors_json=calgary_sectors)
+
+    sectors_df = sector_to_df(
+        sectors_mapped=sectors_with_coords,
+    )
+
+    interpolated_dict = get_aqi_with_RBF(
+        aqi_df=data_df, 
+        sectors_with_coordinates=sectors_with_coords
+    )
+
+    sectors_df['aqi'] = sectors_df['name'].map(interpolated_dict)
+
+    main_df = sectors_df.copy()
+
+    # Change data types for continues sequence in aqi
+    main_df['aqi'] = main_df['aqi'].apply(float)
+
+    fig = px.choropleth_mapbox(main_df,
+                    locations='name',
+                    featureidkey='properties.name',
+                    geojson=calgary_sectors,
+                    color='aqi',
+                    color_continuous_scale=[
+                        (0, "green"), 
+                        (0.25, "yellow"), 
+                        (0.33, "orange"), 
+                        (0.5, "red"), 
+                        (0.66, "purple"), 
+                        (1, "maroon")
+                    ],
+                    range_color=[0, 300],
+                    mapbox_style='carto-darkmatter',
+                    center={'lat':51.033639, 'lon':-114.059655},
+                    zoom=8.8,
+                    opacity=0.5,
+                    title="Calgary's Real-Time Air Quality By Sector Using Air Quality Index (AQI)",
+                    width=1200,
+                    height=550,
+                    template='plotly_dark',
+                    labels=dict(aqi='AQI')
+        )
+
+    fig.update_layout(
+        margin=dict(l=20, r=20, t=80, b=20),
+        coloraxis_colorbar=dict(
+            tickvals=[0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300],
+            ticktext=[
+                '0',
+                '0 - 50: Good',
+                '50',
+                '51 - 100: Moderate',
+                '100',
+                '101 - 150: Unhealthy for Sentive Individuals',
+                '150',
+                '151 - 200: Unhealthy to All',
+                '200',
+                '201 - 300: Very Unhealthy',
+                '300 or More: Hazardous, Health Warning'
+            ]
+        )
+    )
+
+    # fig.show()
+
+
+    fig.write_json("input/aiq_map.json")
 
 
 # This function is a support function for the two functions that will run in the main function
@@ -87,32 +165,8 @@ def get_city_sectors(sectors_json: json):
     return sectors_with_coordinates
 
 
-# This function will find the shortest distance between two points
-# Input: two dictionaries {location: (lat, lon)}
-# Return: dictionary {sector: closest station}
-def map_closest_station(sectors: dict, stations: dict):
-    map_sector_station = {}
-
-    for sec_name, sec_coords in sectors.items():
-        shortest_dist = float('inf')
-        closest_station = ""
-        for station_name, station_coords in stations.items():
-            # Store distance b/t points in kilometers
-            current_dist = distance(station_coords, sec_coords).km
-
-            # Store the current distance as shortest if it's less than the current shortest
-            # As well as the station name
-            if current_dist < shortest_dist:
-                shortest_dist = current_dist
-                closest_station = station_name
-
-        map_sector_station[sec_name] = closest_station
-
-    return map_sector_station
-
-
 # This function will create a df based on the dictionary passed as well as fix its indexes
-# Return: merged pandas dataframe
+# Return: pandas dataframe
 def sector_to_df(sectors_mapped: dict):
     # Convert Dictionary to dataframe
     sectors_df = pd.DataFrame.from_dict(
@@ -126,7 +180,7 @@ def sector_to_df(sectors_mapped: dict):
         '1': 'x_coord' 
     })
 
-    # merge and return df
+    
     return sectors_df
 
 
@@ -142,95 +196,18 @@ def get_aqi_with_RBF(aqi_df: pd.DataFrame, sectors_with_coordinates: dict):
     y = [np.array(tup) for idx, tup in aqi_df['coords'].items()]
     z = aqi_df['aqi'].to_numpy() # aqi value
 
+    # Create the interpolation function
     interp = RBFInterpolator(y, z, kernel='linear')
     
+    # Call the interpolation function for all sector coordinate values
     coords_np = [np.array(coords) for k, coords in sectors_with_coordinates.items()]
     sector_aqi_interpolated = interp.__call__(coords_np)
 
+    # Store in dictionary
     for count, sector in enumerate(sectors_with_coordinates.keys()):
         sector_aqi_interpolated_dict[sector] = round(sector_aqi_interpolated[count], 2)
 
     return sector_aqi_interpolated_dict
-
-
-
-def runner():
-    pio.renderers.default = 'firefox'
-
-    stations = get_stations()
-
-    data_df = get_latest_data(stations=stations)
-
-    stations_with_coords = get_station_coords(stations=stations)
-
-    data_df['coords'] = data_df['station_name'].map(stations_with_coords)
-
-    calgary_sectors = json.load(open("Community District Boundaries.geojson"))
-
-    sectors_with_coords = get_city_sectors(sectors_json=calgary_sectors)
-
-    sectors_df = sector_to_df(
-        sectors_mapped=sectors_with_coords,
-    )
-
-    interpolation_dict = get_aqi_with_RBF(data_df, sectors_with_coords)
-
-    sectors_df['aqi'] = sectors_df['name'].map(interpolation_dict)
-
-    main_df = sectors_df.copy()
-
-    # Change data types for continues sequence in aqi
-    main_df['aqi'] = main_df['aqi'].apply(int)
-
-    fig = px.choropleth_mapbox(main_df,
-                    locations='name',
-                    featureidkey='properties.name',
-                    geojson=calgary_sectors,
-                    color='aqi',
-                    color_continuous_scale=[
-                        (0, "green"), 
-                        (0.25, "yellow"), 
-                        (0.33, "orange"), 
-                        (0.5, "red"), 
-                        (0.66, "purple"), 
-                        (1, "purple")
-                    ],
-                    range_color=[0, 300],
-                    mapbox_style='carto-darkmatter',
-                    center={'lat':51.033639, 'lon':-114.059655},
-                    zoom=8.8,
-                    opacity=0.5,
-                    title="Calgary's Real-Time Air Quality By Sector Using Air Quality Index (AQI)",
-                    width=1200,
-                    height=550,
-                    template='plotly_dark',
-                    labels=dict(aqi='AQI')
-        )
-
-    fig.update_layout(
-        margin=dict(l=20, r=20, t=80, b=20),
-        coloraxis_colorbar=dict(
-            tickvals=[0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300],
-            ticktext=[
-                '0',
-                '0 - 50: Good',
-                '50',
-                '51 - 100: Moderate',
-                '100',
-                '101 - 150: Unhealthy for Sentive Individuals',
-                '150',
-                '151 - 200: Unhealthy to All',
-                '200',
-                '201 - 300: Very Unhealthy',
-                '300 or More: Hazardous, Health Warning'
-            ]
-        )
-    )
-
-    fig.show()
-
-
-    # fig.write_json("input/aiq_map.json")
 
 
 if __name__ == '__main__':
