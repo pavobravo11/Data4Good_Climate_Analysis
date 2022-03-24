@@ -8,6 +8,19 @@
     <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
     <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
     <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 10;
+        padding: 5;
+        background-color: forestgreen;
+      }
+      #map_container {
+        margin: 20;
+        padding: 20;
+      }
+    </style>
   </head>
   <body>
     <article class="markdown-body"><h1 id="calgary-air-quality-analysis"><a class="header-link" href="#calgary-air-quality-analysis"></a>Calgary Air Quality Analysis</h1>
@@ -15,18 +28,20 @@
 In November 2021, the Calgary City Council declared a Climate Emergency.  A team with Data for Good Calgary took on the opportunity to help citizens learn about their city by founding the idea of using data and technology to raise awareness on Calgary’s climate change impact. Data for Good’s goal is to present free and accessible baseline emissions data in an easy-to-use platform to serve citizens, city decision makers, researchers, and solution providers in identifying and leveraging climate action opportunities in the city and beyond.
 Historical emissions data was collected from the City of Calgary and Canada open inventories, presented on a dashboard for the years 1990-2019.  In addition, data modelling is used to present hourly air quality and particulate matter (PM2.5) information from iQAir, connecting real-time data collection points to each neighbourhood in Calgary.  These aggregated historical and current emissions data can be further specified to individual outputs by industry or activity, such as agriculture and waste management, and create opportunities for standardized data collection methodologies and collaboration with other tools.  By drawing insights from the major sources of GHG emissions, subsequent climate action planning, solutions, and community engagement can be accelerated, and contribute to The City of Calgary’s Climate Strategy to net zero by 2050.</p>
 <div id="aiqmap" class="plotly-graph-div" style="height:100%; width:100%;"></div>    </article>
-    <script type="text/javascript">
-      async function plot(json, id){
-          const request = new Request(json);
-          const response = await fetch(request);
-          const graph = await response.json();
-          Plotly.newPlot(id,graph["data"], graph["layout"], {responsive: true})
-      }
-      window.PLOTLYENV = window.PLOTLYENV || {};
-      if (document.getElementById("aiqmap")) {
-          plot("aiq_map.json", "aiqmap")
-      }
-  </script>
+    <div id="map_container">
+      <script type="text/javascript">
+        async function plot(json, id){
+            const request = new Request(json);
+            const response = await fetch(request);
+            const graph = await response.json();
+            Plotly.newPlot(id,graph["data"], graph["layout"], {responsive: true})
+        }
+        window.PLOTLYENV = window.PLOTLYENV || {};
+        if (document.getElementById("aiqmap")) {
+            plot("aiq_map.json", "aiqmap")
+        }
+      </script>
+    </div>
 
   </body>
 </html>
