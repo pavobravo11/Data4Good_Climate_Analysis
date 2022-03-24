@@ -206,6 +206,9 @@ def get_aqi_with_RBF(aqi_df: pd.DataFrame, sectors_with_coordinates: dict):
 
     # Store in dictionary
     for count, sector in enumerate(sectors_with_coordinates.keys()):
+        if sector_aqi_interpolated[count] < 0:
+            sector_aqi_interpolated[count] = 0
+
         sector_aqi_interpolated_dict[sector] = round(sector_aqi_interpolated[count], 2)
 
     return sector_aqi_interpolated_dict
