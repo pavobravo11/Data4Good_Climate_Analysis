@@ -47,10 +47,10 @@ def runner():
                     color='aqi',
                     color_continuous_scale=[
                         (0, "green"), 
-                        (0.25, "yellow"), 
+                        (0.1667, "yellow"), 
                         (0.33, "orange"), 
                         (0.5, "red"), 
-                        (0.66, "purple"), 
+                        (0.667, "purple"), 
                         (1, "maroon")
                     ],
                     range_color=[0, 300],
