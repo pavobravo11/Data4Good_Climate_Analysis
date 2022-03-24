@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>{{title}}</title>
+    <link type="text/css" rel="stylesheet" href="{{asset 'css/github-markdown.css'}}">
+    <link type="text/css" rel="stylesheet" href="{{asset 'css/pilcrow.css'}}">
+    <link type="text/css" rel="stylesheet" href="{{asset 'css/hljs-github.min.css'}}"/>
+    <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+    <style>
+      html {
+        background: local;
+      }
+      body {
+        max-width: 1300px;
+        height: 100%;
+        margin: 40;
+        padding: 5;
+        background-color: darkcyan;
+      }
+      #map_container {
+        margin: 20;
+        padding: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="markdown-body">
+      {{~> content}}
+    </article>
+    <div id="map_container">
+      <script type="text/javascript">
+        async function plot(json, id){
+            const request = new Request(json);
+            const response = await fetch(request);
+            const graph = await response.json();
+            Plotly.newPlot(id,graph["data"], graph["layout"], {responsive: true})
+        }
+        window.PLOTLYENV = window.PLOTLYENV || {};
+        if (document.getElementById("aiqmap")) {
+            plot("aiq_map.json", "aiqmap")
+        }
+      </script>
+    </div>
+
+  </body>
+</html>
