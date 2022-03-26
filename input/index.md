@@ -21,6 +21,8 @@ Historical emissions and air quality data were collected from the City of Calgar
 
 <h3 id="predictons">Future Predictions Using Exponential Smoothing</h3> 
 
+
+<div id="info_box">
 <h3 id="sources">Data Sources</h3>
     <a href="https://data.calgary.ca/Base-Maps/Community-Boundaries/ab7m-fwn6" target="_blank" rel="noopener noreferrer">
         • City of Calgary Community District Boundaries
@@ -68,3 +70,4 @@ Historical emissions and air quality data were collected from the City of Calgar
     <a href="https://unfccc.int/" target="_blank" rel="noopener noreferrer">
         • United Nations Framework Convention on Climate Change
     </a><br>
+</div>
