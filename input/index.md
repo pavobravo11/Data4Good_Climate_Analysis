@@ -9,19 +9,21 @@ In 2019, Alberta represented 38% of the GHG emissions in Canada at 275.8 megaton
 A team with Data for Good Calgary took on the opportunity to help citizens learn about their city by founding the idea of using data and technology to raise awareness on Calgary’s climate change impact. Data for Good’s goal is to present free and accessible baseline emissions data in an easy-to-use platform to serve citizens, city decision makers, researchers, and solution providers in identifying and leveraging climate action opportunities in the city and beyond.
 
 Historical emissions and air quality data were collected from the City of Calgary and the Government of Canada open inventories, and are presented on an interactive dashboard for the years 1990-2019.  In addition, data modelling is used to present hourly air quality and particulate matter (PM2.5) information from iQAir, connecting real-time data collection points to each neighbourhood in Calgary.  These aggregated historical and current emissions data can be further specified to individual outputs by industry or activity, such as land use from agriculture and construction, and create opportunities for standardized data collection methodologies and collaboration with other tools.  By drawing insights from the major sources of GHG emissions, subsequent climate action planning, solutions, and community engagement can be accelerated, and contribute to The City of Calgary’s Climate Strategy to net zero by 2050.
+<br>
+<h3 id="real_time">Real Time Data</a>
 <div id="map_container">
     <div id="aiqmap" class="plotly-graph-div" style="height:100%; width:100%;"></div>
 </div>
 <h3 id="sources">Data Sources</h3>
 <a href="https://data.calgary.ca/Base-Maps/Community-Boundaries/ab7m-fwn6">
-    City of Calgary Community District Boundaries
-</a>
+    • City of Calgary Community District Boundaries
+</a><br>
 <a href="https://data.calgary.ca/Environment/Community-wide-Greenhouse-Gas-GHG-Inventory/m7gu-3xk5">
-    City of Calgary Community-wide Greenhouse Gas Inventory 
-</a>
+    • City of Calgary Community-wide Greenhouse Gas Inventory 
+</a><br>
 <a href="https://data.calgary.ca/Environment/Historical-Air-Quality/uqjm-jxgp">
-    City of Calgary Historical Air Quality Open Data
-</a>
+    • City of Calgary Historical Air Quality Open Data
+</a><br>
 <a href="https://www.iqair.com/ca/canada/alberta/calgary">
-    IQAir - Calgary Air Quality index (AQI) and PM2.5 Air Pollution 
+    • IQAir - Calgary Air Quality index (AQI) and PM2.5 Air Pollution 
 </a>
