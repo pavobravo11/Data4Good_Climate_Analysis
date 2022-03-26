@@ -1,5 +1,15 @@
 
-Calgary Air Quality Analysis
+<h1>Calgary Air Quality Analysis</h1>
+
+<nav class="topnav">
+      <a class="active" href="#home">Home</a>
+      <a href="#about">About the Data</a>
+      <a href="#real_time">Real Time Data</a>
+      <a href="#history">History</a>
+      <a href="#predictions">Future</a>
+      <a href="#sources">Data Sources</a>
+      <a href="#resources">Additional Resources</a>
+    </nav>
 ============================
 <h3 id="about">About the Data</h3>
 
@@ -19,7 +29,7 @@ Historical emissions and air quality data were collected from the City of Calgar
 
 <h3 id="history">Calgary's Climate History</h3>
 
-<h3 id="predictons">Future Predictions Using Exponential Smoothing</h3> 
+<h3 id="predictions">Future Predictions Using Exponential Smoothing</h3> 
 
 
 <div id="info_box">
