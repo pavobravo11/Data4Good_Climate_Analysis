@@ -27,4 +27,36 @@ Historical emissions and air quality data were collected from the City of Calgar
 </a><br>
 <a href="https://www.iqair.com/ca/canada/alberta/calgary">
     • IQAir - Calgary Air Quality index (AQI) and PM2.5 Air Pollution 
-</a>
+</a><br>
+<h3 id="resources">References</h3>
+<a href="https://www.calgary.ca/uep/esm/energy-savings/climate-change.html#emergency">
+    • City of Calgary Climate Change Program
+</a><br>
+<a href="https://www.canada.ca/en/environment-climate-change/services/environmental-indicators/greenhouse-gas-emissions.html">
+    • Government of Canada National Greenhouse Gas Emissions 
+</a><br>
+<a href="https://www.un.org/en/climatechange">
+    • United Nations Climate Action
+</a><br>
+<h3>Additional Resources</h3>
+<a href="https://acis.alberta.ca/">
+    • Alberta Climate Information Service
+</a><br>
+<a href="https://www.calgaryclimatehub.ca/">
+    • ​​Calgary Climate Hub
+</a><br>
+<a href="https://www.calgary.ca/uep/esm/climate-change/climate-actions.html">
+    • City of Calgary Climate Resilience Strategy Action Plans
+</a><br>
+<a href="https://climateatlas.ca/">
+    • Climate Atlas of Canada
+</a><br>
+<a href="https://www.canada.ca/en/services/environment/weather/climatechange.html">
+    • Government of Canada Climate Change
+</a><br>
+<a href="https://www.canada.ca/en/environment-climate-change/services/climate-change/greenhouse-gas-emissions/inventory.html">
+    • Government of Canada Greenhouse Gas Inventory
+</a><br>
+<a href="https://unfccc.int/">
+    • United Nations Framework Convention on Climate Change
+</a><br>
