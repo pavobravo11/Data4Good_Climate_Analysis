@@ -13,13 +13,15 @@ Historical emissions and air quality data were collected from the City of Calgar
     <div id="aiqmap" class="plotly-graph-div" style="height:100%; width:100%;"></div>
 </div>
 <h3 id="sources">Data Sources</h3>
-    <p>Sources of Data<br>
-
-    City of Calgary Community District Boundaries<br>
-
-    City of Calgary Community-wide Greenhouse Gas Inventory <br>
-
-    City of Calgary Historical Air Quality Open Data <br>
-
-    IQAir - Calgary Air Quality index (AQI) and PM2.5 Air Pollution <br>
-    </p>
+<a href="https://data.calgary.ca/Base-Maps/Community-Boundaries/ab7m-fwn6">
+    City of Calgary Community District Boundaries
+</a>
+<a href="https://data.calgary.ca/Environment/Community-wide-Greenhouse-Gas-GHG-Inventory/m7gu-3xk5">
+    City of Calgary Community-wide Greenhouse Gas Inventory 
+</a>
+<a href="https://data.calgary.ca/Environment/Historical-Air-Quality/uqjm-jxgp">
+    City of Calgary Historical Air Quality Open Data
+</a>
+<a href="https://www.iqair.com/ca/canada/alberta/calgary">
+    IQAir - Calgary Air Quality index (AQI) and PM2.5 Air Pollution 
+</a>
