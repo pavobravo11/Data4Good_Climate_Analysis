@@ -33,6 +33,10 @@
         filter: blur(8px);
         -webkit-filter: blur(8px);
       } */
+
+      #info_box {
+        background-color: whitesmoke;
+      }
       .topnav {
         overflow: hidden;
         background-color: lightblue;
@@ -93,6 +97,8 @@
 
 <h3 id="predictons">Future Predictions Using Exponential Smoothing</h3> 
 
+
+<div id="info_box">
 <h3 id="sources">Data Sources</h3>
     <a href="https://data.calgary.ca/Base-Maps/Community-Boundaries/ab7m-fwn6" target="_blank" rel="noopener noreferrer">
         • City of Calgary Community District Boundaries
@@ -139,7 +145,8 @@
     </a><br>
     <a href="https://unfccc.int/" target="_blank" rel="noopener noreferrer">
         • United Nations Framework Convention on Climate Change
-    </a><br>    </article>
+    </a><br>
+</div>    </article>
       <script type="text/javascript">
         async function plot(json, id){
             const request = new Request(json);
