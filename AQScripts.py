@@ -89,7 +89,6 @@ def runner():
 
     # fig.show()
 
-
     fig.write_json("input/aiq_map.json")
 
 
