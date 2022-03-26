@@ -53,7 +53,7 @@ def runner():
                         (0.667, "purple"), 
                         (1, "maroon")
                     ],
-                    range_color=[0, 300],
+                    range_color=[0, 150],
                     mapbox_style='carto-darkmatter',
                     center={'lat':51.033639, 'lon':-114.059655},
                     zoom=8.8,
@@ -62,13 +62,14 @@ def runner():
                     width=1200,
                     height=550,
                     template='plotly_dark',
-                    labels=dict(aqi='AQI')
+                    labels=dict(aqi='AQI'),
+                    hover_data=['aqi']
         )
 
     fig.update_layout(
         margin=dict(l=20, r=20, t=80, b=20),
         coloraxis_colorbar=dict(
-            tickvals=[0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300],
+            tickvals=[0, 25, 50, 75, 100, 125, 150],
             ticktext=[
                 '0',
                 '0 - 50: Good',
@@ -76,13 +77,14 @@ def runner():
                 '51 - 100: Moderate',
                 '100',
                 '101 - 150: Unhealthy for Sentive Individuals',
-                '150',
-                '151 - 200: Unhealthy to All',
-                '200',
-                '201 - 300: Very Unhealthy',
-                '300 or More: Hazardous, Health Warning'
+                '150 or More: Unhealthy for All'
             ]
         )
+    )
+
+    fig.update_traces(
+        hovertemplate="%{properties.name}: <br>Air Quality Index: %{text}",
+        text=main_df['aqi']
     )
 
     # fig.show()
@@ -206,8 +208,7 @@ def get_aqi_with_RBF(aqi_df: pd.DataFrame, sectors_with_coordinates: dict):
 
     # Store in dictionary
     for count, sector in enumerate(sectors_with_coordinates.keys()):
-        if sector_aqi_interpolated[count] < 0:
-            sector_aqi_interpolated[count] = 0
+        if sector_aqi_interpolated[count] < 0: sector_aqi_interpolated[count] = 0
 
         sector_aqi_interpolated_dict[sector] = round(sector_aqi_interpolated[count], 2)
 
