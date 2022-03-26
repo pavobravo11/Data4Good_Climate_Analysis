@@ -10,7 +10,6 @@
       <a href="#sources">Data Sources</a>
       <a href="#resources">Additional Resources</a>
     </nav>
-============================
 <div class="bg-image">
 <h3 id="about">About the Data</h3>
 
