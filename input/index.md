@@ -24,13 +24,15 @@ Historical emissions and air quality data were collected from the City of Calgar
 <br>
 
 <h3 id="real_time">Real Time Data</h3>
-    <div id="map_container">
-        <div id="aiqmap" class="plotly-graph-div" style="height:100%; width:100%;"></div>
-</div>
+    <div id="aiqmap" class="plotly-graph-div" style="height:100%; width:100%;"></div>
 
 <h3 id="history">Calgary's Climate History</h3>
 
+<h4>Recent History by AQI Measuring Station</h4>
 <div id="recent_history" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+<h4>Calgary Emissions Report - Power BI</h4>
+<iframe title="Calgary Emissions Data" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=8b17e4e0-9aef-4010-be63-2d72dc58747c&autoAuth=true&ctid=1060fcd0-cf23-448a-9daa-faad4b730632&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLWNhbmFkYS1jZW50cmFsLWItcHJpbWFyeS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>
+<!-- <h4>Calgary Average AQI vs Traffic in the City</h4> -->
 
 <h3 id="predictions">Future Predictions Using Exponential Smoothing</h3> 
 
