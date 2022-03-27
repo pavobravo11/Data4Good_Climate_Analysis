@@ -6,7 +6,7 @@
       <a href="#about">About the Data</a>
       <a href="#real_time">Real Time Data</a>
       <a href="#history">History</a>
-      <a href="#predictions">Future</a>
+      <!-- <a href="#predictions">Future</a> -->
       <a href="#sources">Data Sources</a>
       <a href="#resources">Additional Resources</a>
 </nav>
@@ -32,7 +32,7 @@ Historical emissions and air quality data were collected from the City of Calgar
 <iframe title="Calgary Emissions Data" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=8b17e4e0-9aef-4010-be63-2d72dc58747c&autoAuth=true&ctid=1060fcd0-cf23-448a-9daa-faad4b730632&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLWNhbmFkYS1jZW50cmFsLWItcHJpbWFyeS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>
 <!-- <h4>Calgary Average AQI vs Traffic in the City</h4> -->
 
-<h3 id="predictions">Future Predictions Using Exponential Smoothing</h3> 
+<!-- <h3 id="predictions">Future Predictions Using Exponential Smoothing</h3>  -->
 
 
 <div id="info_box">
