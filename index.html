@@ -97,6 +97,8 @@
 
 <h3 id="history">Calgary's Climate History</h3>
 
+<div id="recent_history" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+
 <h3 id="predictions">Future Predictions Using Exponential Smoothing</h3> 
 
 
@@ -152,16 +154,16 @@
 
 </div>    </article>
       <script type="text/javascript">
-        async function plot(json, id){
-            const request = new Request(json);
+        async function plot(id) {
+          if (document.getElementById(id)) {
+            const request = new Request(id + ".json");
             const response = await fetch(request);
             const graph = await response.json();
-            Plotly.newPlot(id,graph["data"], graph["layout"], {responsive: true})
+            Plotly.newPlot(id, graph["data"], graph["layout"], {responsive: true})
+          }
         }
         window.PLOTLYENV = window.PLOTLYENV || {};
-        if (document.getElementById("aiqmap")) {
-            plot("aiq_map.json", "aiqmap")
-        }
+        plot("aiqmap")
       </script>
   </body>
 </html>
