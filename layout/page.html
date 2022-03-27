@@ -22,7 +22,7 @@
         position: inherit;
         background-color: darkcyan;
       }
-      .bg-image {
+      .bg-image :not(.content){
         height: 100%;
         width: 100%;
         background-image: url('https://cdn.pixabay.com/photo/2020/06/02/00/29/peace-5248859_960_720.jpg');
@@ -71,11 +71,12 @@
     </style>
   </head>
   <body>
-    <div class="bg-image"></div>
-    <div id="content">
-      <article class="markdown-body">
-        {{~> content}}
-      </article>
+    <div class="bg-image">
+      <div id="content">
+        <article class="markdown-body">
+          {{~> content}}
+        </article>
+      </div>
     </div>
       <script type="text/javascript">
         async function plot(id) {
