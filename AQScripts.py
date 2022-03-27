@@ -89,7 +89,7 @@ def runner():
 
     # fig.show()
 
-    fig.write_json("input/aiq_map.json")
+    fig.write_json("input/aiqmap.json")
 
 
 # This function is a support function for the two functions that will run in the main function

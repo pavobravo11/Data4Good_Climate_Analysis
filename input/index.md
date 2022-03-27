@@ -29,6 +29,8 @@ Historical emissions and air quality data were collected from the City of Calgar
 
 <h3 id="history">Calgary's Climate History</h3>
 
+<div id="recent_history" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+
 <h3 id="predictions">Future Predictions Using Exponential Smoothing</h3> 
 
 

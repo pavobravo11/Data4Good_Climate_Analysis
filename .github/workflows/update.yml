@@ -36,7 +36,9 @@ jobs:
           poetry config virtualenvs.in-project true --local
           poetry install --no-dev
       - name: Update map
-        run: poetry run python ./AQScripts.py
+        run: |
+          poetry run python ./AQScripts.py
+          poetry run python ./HistoricalGraph.py
       - name: Generate website
         run:  generate-md --layout layout
       - name: Publish website
