@@ -22,18 +22,16 @@
         position: inherit;
         background-color: darkcyan;
       }
-      /* .bg-image{
-        height: 1000px;
+      .bg-image :not(.content){
+        height: 100%;
         width: 100%;
         background-image: url('https://cdn.pixabay.com/photo/2020/06/02/00/29/peace-5248859_960_720.jpg');
         background-position: center;
         background-repeat: no-repeat;
-        display: ;
         background-size: cover;
-        position: relative;
         filter: blur(8px);
         -webkit-filter: blur(8px);
-      } */
+      }
 
       #info_box {
         background-color: lightcyan;
@@ -73,9 +71,12 @@
     </style>
   </head>
   <body>
-    <article class="markdown-body">
-      {{~> content}}
-    </article>
+    <div class="bg-image"></div>
+    <div id="content">
+      <article class="markdown-body">
+        {{~> content}}
+      </article>
+    </div>
       <script type="text/javascript">
         async function plot(id) {
           if (document.getElementById(id)) {
