@@ -1,10 +1,12 @@
 import itertools
-import time
+from datetime import datetime
 from functools import partial
+
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 round2 = partial(round, ndigits=2)
 
@@ -35,77 +37,116 @@ def runner():
         "BEC8AE",
     ]
 
+    data_names = [
+        "PM2.5 Mass",
+        "Methane",
+        "Ozone",
+        "Air Quality Index",
+    ]
+
+    outlier_limits = [
+        100,
+        None,
+        None,
+        None,
+    ]
+
+    units = [
+        "ug/m3",
+        "ppm",
+        "ppm",
+        "AQI"
+    ]
+
+    seasonality = [
+        4,
+        12,
+        0,
+        12,
+    ]
+
     buttons = []
 
     for i, station in enumerate(data["Station Name"].unique()):
         station_data = data[(data['Station Name'] == station)]
-        pm_data = station_data[station_data['Parameter'] == "PM2.5 Mass"].resample('1M').mean().interpolate(
-            method='linear',
-            limit_direction='forward',
-            axis=0)
-        methane_data = station_data[station_data['Parameter'] == "Methane"].resample('1M').mean().interpolate(
-            method='linear', limit_direction='forward', axis=0)
-        ozone = station_data[station_data['Parameter'] == "Ozone"].resample('1M').mean().interpolate(method='linear',
-                                                                                                     limit_direction='forward',
-                                                                                                     axis=0)
-        aqi = station_data[station_data['Parameter'] == "Air Quality Index"].resample('1M').mean().interpolate(
-            method='linear', limit_direction='forward', axis=0)
+        for dni, dn in enumerate(data_names):
+            data_for_pred = station_data[station_data['Parameter'] == dn]
+            data_for_pred['Average Daily Value'] = data_for_pred['Average Daily Value'].replace(0, np.nextafter(0, 1))
+            if outlier_limits[dni]:
+                data_for_pred = data_for_pred[data_for_pred['Average Daily Value'] <= outlier_limits[dni]]
+            data_for_pred = data_for_pred[['Average Daily Value']]
+            data_for_pred = data_for_pred.sort_index().squeeze().resample('1M').mean().bfill()
 
-        pm_data["txt"] = pm_data["Average Daily Value"].apply(round2).astype(str) + " ug/m3"
-        methane_data["txt"] = methane_data["Average Daily Value"].apply(round2).astype(str) + " ppm"
-        ozone["txt"] = ozone["Average Daily Value"].apply(round2).astype(str) + " ppm"
-        aqi["txt"] = aqi["Average Daily Value"].apply(round2).astype(str)
+            have_prediction = False
 
-        # Add traces
-        fig.add_trace(go.Scatter(
-            x=pm_data.index,
-            y=pm_data["Average Daily Value"],
-            text=pm_data["txt"],
-            name=f"{station} - PM2.5",
-            yaxis="y",
-            line={"color": f"#{y_colors[0]}"},
-            visible=True if i == 0 else False
-        ))
+            if seasonality[dni]:
+                try:
+                    prediction_model = ExponentialSmoothing(data_for_pred,
+                                                            damped_trend=True,
+                                                            seasonal="mul",
+                                                            seasonal_periods=seasonality[dni],
+                                                            trend="add",
+                                                            use_boxcox=True
+                                                            )
 
-        fig.add_trace(go.Scatter(
-            x=methane_data.index,
-            y=methane_data["Average Daily Value"],
-            text=methane_data["txt"],
-            name=f"{station} - Methane",
-            yaxis="y2",
-            line={"color": f"#{y_colors[1]}"},
-            visible=True if i == 0 else False
+                    fitted = prediction_model.fit(remove_bias=False)
+                    have_prediction = True
+                except ValueError as e:
+                    print(e)
 
-        ))
+            if have_prediction:
+                predicted_values = pd.concat([fitted.fittedvalues, fitted.forecast(12)])
+                predicted_values.name = "Average Daily Value"
 
-        fig.add_trace(go.Scatter(
-            x=ozone.index,
-            y=ozone["Average Daily Value"],
-            text=ozone["txt"],
-            name=f"{station} - Ozone",
-            yaxis="y3",
-            line={"color": f"#{y_colors[2]}"},
-            visible=True if i == 0 else False
+                pframe = predicted_values.to_frame()
+                pframe['Count'] = 1
+                pframe["txt"] = pframe["Average Daily Value"].apply(round2).astype(str) + f" {units[dni]}"
 
-        ))
+            data_for_display = station_data[station_data['Parameter'] == dn]
+            data_for_display = data_for_display.resample('1M').mean().interpolate(
+                method='linear',
+                limit_direction='forward',
+                axis=0)
+            data_for_display["txt"] = data_for_display["Average Daily Value"].apply(round2).astype(str) + f" {units[dni]}"
 
-        fig.add_trace(go.Scatter(
-            x=aqi.index,
-            y=aqi["Average Daily Value"],
-            text=aqi["txt"],
-            name=f"{station} - Air Quality Index",
-            yaxis="y4",
-            line={"color": f"#{y_colors[3]}"},
-            visible=True if i == 0 else False
+            # Add traces
+            fig.add_trace(go.Scatter(
+                x=data_for_display.index,
+                y=data_for_display["Average Daily Value"],
+                text=data_for_display["txt"],
+                name=f"{station} - ${data_names[dni]}",
+                yaxis="y" if dni == 0 else f"y{dni+1}",
+                line={"color": f"#{y_colors[dni]}"},
+                visible=True if i == 0 else False,
+            ))
 
-        ))
+            if have_prediction:
+                fig.add_trace(go.Scatter(
+                    x=pframe.index,
+                    y=pframe["Average Daily Value"],
+                    text=pframe["txt"],
+                    name=f"{station} - Forecast ${data_names[dni]}",
+                    yaxis="y" if dni == 0 else f"y{dni+1}",
+                    line={"color": f"#{y_colors[dni]}", "dash": "dot"},
+                    visible=True if i == 0 else False
+                ))
+            else:
+                fig.add_trace(go.Scatter(
+                    x=[],
+                    y=[],
+                    text=[],
+                    name=f"{station} - Forecast ${data_names[dni]}",
+                    yaxis="y" if dni == 0 else f"y{dni+1}",
+                    line={"color": f"#{y_colors[dni]}", "dash": "dot"},
+                    visible=True if i == 0 else False
+                ))
 
     # style all the traces
     fig.update_traces(
         hoverinfo="name+x+text",
         line={"width": 0.5},
         marker={"size": 8},
-        mode="lines+markers",
+        mode="lines",
         showlegend=False
     )
 
@@ -136,9 +177,9 @@ def runner():
                 (1 / len(y_colors) * (i + 1)) - 0.01
             ],
             "title": units[i],
-            "linecolor": fig.data[i].line.color,
-            "tickfont": {"color": fig.data[i].line.color},
-            "titlefont": {"color": fig.data[i].line.color},
+            "linecolor": f"#{y_colors[i]}",
+            "tickfont": {"color": f"#{y_colors[i]}"},
+            "titlefont": {"color": f"#{y_colors[i]}"},
         }
         axis_params[f"yaxis{i + 1}" if i else "yaxis"] = {**common_params, **specific_params}
 
@@ -157,9 +198,9 @@ def runner():
     fig.update_xaxes(range=r)
 
     for i, station in enumerate(data["Station Name"].unique()):
-        hide = itertools.repeat(False, i * 4)
-        show = itertools.repeat(True, 4)
-        hide_after = itertools.repeat(False, len(fig.data) - ((i + 1) * 4))
+        hide = itertools.repeat(False, i * 8)
+        show = itertools.repeat(True, 8)
+        hide_after = itertools.repeat(False, len(fig.data) - ((i + 1) * 8))
 
         buttons.append(
             dict(
