@@ -226,7 +226,7 @@ def runner():
         ]
     )
 
-    fig.write_json("input/recent_history.json")
+    fig.write_json("input/predictions.json")
 
 
 if __name__ == '__main__':
