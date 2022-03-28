@@ -226,7 +226,7 @@ def runner():
         ]
     )
 
-    fig.write_json("input/predictions.json")
+    fig.write_json("input/predictions_plotly.json")
 
 
 if __name__ == '__main__':

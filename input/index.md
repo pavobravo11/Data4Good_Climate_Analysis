@@ -46,7 +46,7 @@ This, together with other statistical factors, indicate that at least for PM2.5 
 not a clear determining factor. Indeed additional data (forest fires, wind, ...) could account for some variance
 and further examination might be needed.
 
-<div id="predictions" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+<div id="predictions_plotly" class="plotly-graph-div" style="height:100%; width:100%;"></div>
 
 
 <div id="info_box">
