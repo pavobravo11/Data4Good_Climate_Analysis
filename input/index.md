@@ -6,7 +6,7 @@
       <a href="#about">About the Data</a>
       <a href="#real_time">Real Time Data</a>
       <a href="#history">History</a>
-      <!-- <a href="#predictions">Future</a> -->
+      <a href="#predictions">Future</a>
       <a href="#sources">Data Sources</a>
       <a href="#resources">Additional Resources</a>
 </nav>
