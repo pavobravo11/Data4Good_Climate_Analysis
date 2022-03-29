@@ -3,7 +3,6 @@
 
 Team Members: <br>
 Joan Vlasschaert<br>
-Jesreen Jamaldeen<br>
 Justin Selleck<br>
 Katia Santos<br>
 Manuel Schönlaub<br>
