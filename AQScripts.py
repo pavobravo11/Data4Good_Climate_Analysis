@@ -11,6 +11,7 @@ from shapely.geometry import shape
 import numpy as np
 from scipy.interpolate import RBFInterpolator
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import plotly.express as px
 
 
@@ -42,7 +43,9 @@ def runner():
     main_df = sectors_df.copy()
 
     # Get the current data and time to show when the graph refreshed
-    current_dt = datetime.now().strftime("%m/%d/%Y %I:%M %p")
+    # Uses edmonton because calgary is not within the key
+    current_dt = datetime.now(tz=ZoneInfo("America/Edmonton"))\
+                    .strftime("%m/%d/%Y %I:%M %p")
 
     fig = px.choropleth_mapbox(main_df,
                     locations='name',
