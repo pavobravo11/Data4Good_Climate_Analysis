@@ -64,7 +64,7 @@ def runner():
                     opacity=0.5,
                     title="Calgary's Real-Time Air Quality " +\
                         "By Sector Using Air Quality Index (AQI)" +\
-                        f"<br><sup>Last Refresh: {current_dt}</sup>",
+                        f"<br><sup>Last Refresh: {current_dt} Calgary Time</sup>",
                     width=1200,
                     height=550,
                     template='plotly_dark',
