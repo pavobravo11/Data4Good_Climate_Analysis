@@ -8,24 +8,28 @@ import requests
 import pandas as pd
 import json
 from shapely.geometry import shape
-from geopy.distance import distance
+import numpy as np
+from scipy.interpolate import RBFInterpolator
+from datetime import datetime
 import plotly.express as px
 
+
 def runner():
-    stations = get_stations()
+    stations = get_stations().json()
 
     data_df = get_latest_data(stations=stations)
 
     stations_with_coords = get_station_coords(stations=stations)
 
+    # Map the coordinates of each station into the dataframe
     data_df['coords'] = data_df['station_name'].map(stations_with_coords)
 
     calgary_sectors = json.load(open("Community District Boundaries.geojson"))
 
-    sectors_with_coords = get_city_sectors(sectors_json=calgary_sectors)
+    sectors_with_coords = get_city_sectors(sectors=calgary_sectors)
 
     sectors_df = sector_to_df(
-        sectors_mapped=sectors_with_coords,
+        sectors_with_coords=sectors_with_coords,
     )
 
     interpolated_dict = get_aqi_with_RBF(
@@ -37,8 +41,8 @@ def runner():
 
     main_df = sectors_df.copy()
 
-    # Change data types for continues sequence in aqi
-    main_df['aqi'] = main_df['aqi'].apply(float)
+    # Get the current data and time to show when the graph refreshed
+    current_dt = datetime.now().strftime("%m/%d/%Y %I:%M %p")
 
     fig = px.choropleth_mapbox(main_df,
                     locations='name',
@@ -58,7 +62,9 @@ def runner():
                     center={'lat':51.033639, 'lon':-114.059655},
                     zoom=8.8,
                     opacity=0.5,
-                    title="Calgary's Real-Time Air Quality By Sector Using Air Quality Index (AQI)",
+                    title="Calgary's Real-Time Air Quality " +\
+                        "By Sector Using Air Quality Index (AQI)" +\
+                        f"<br><sup>Last Refresh: {current_dt}</sup>",
                     width=1200,
                     height=550,
                     template='plotly_dark',
@@ -92,8 +98,10 @@ def runner():
     fig.write_json("input/aiqmap.json")
 
 
-# This function is a support function for the two functions that will run in the main function
-# This will return the station data to pass on to the Jupyternotebook
+# This is a support function used to get the json 
+# file from the API that contains the properties of 
+# the aqi measuring stations for the city of calgary
+# Returns: stations properties in a nested json
 def get_stations():
     # Get the city data
     city = requests.get("https://website-api.airvisual.com/v1/routes/canada/alberta/calgary")
@@ -105,18 +113,20 @@ def get_stations():
     return stations
 
 
-## This method is used to get the data using request and then returns a pandas datafram
-# No Formal parameters, and the return type is a pandas dataframe, as well as a dictionary
+# This function requests the data per aqi measuring station
+# which then stores it in a dataframe
+# @param: station data in a json format from get_stations()
+# Returns: pandas dataframe containing the station data
 # containing all of the station names
 def get_latest_data(stations: json):
     # Main dataframe that will store and the data to be returned
     data_df = pd.DataFrame()
 
     # Get all of the stations AQ data and add them to one dataframe
-    for count, station in enumerate(stations.json()):
-        # Get data for station and convert to data frame
+    for count, station in enumerate(stations):
+        # Get hourly data for station and convert to data frame
         station_data = requests.get \
-            (f"https://website-api.airvisual.com/v1/stations/{stations.json()[count].get('id')}/measurements?units.temperature=celsius&units.distance=kilometer&units.pressure=millibar&AQI=US&language=en")
+            (f"https://website-api.airvisual.com/v1/stations/{stations[count].get('id')}/measurements?units.temperature=celsius&units.distance=kilometer&units.pressure=millibar&AQI=US&language=en")
         stations_tempdf = pd.json_normalize(station_data.json()['measurements']['hourly'])
 
         # Add a name column
@@ -132,21 +142,25 @@ def get_latest_data(stations: json):
         stations_df_row = pd.DataFrame(stations_tempdf.iloc[-1][['ts', 'aqi', 'station_name']].copy())
         stations_df_column = stations_df_row.transpose()
 
+        # Concat to our dataframe that contains all of the stations
         data_df = pd.concat([data_df, stations_df_column], ignore_index=True)
 
     return data_df
 
 
-# This function is used to find all the coordinates for the stations from the Air-Visual API
-# Return: Dictionary with all stations in the request {station name : (latitude, longitude)}
-def get_station_coords(stations: json):
+# This function is used to find all the coordinates 
+# for the stations from the Air-Visual API
+# @params: station data in a list from get_stations()
+# Returns: Dictionary with all stations in the request 
+#   format {station name : (latitude, longitude)}
+def get_station_coords(stations: list):
     # The coordinate data will be stored in here
     stations_with_coordinates = {}
 
-    for count in range(len(stations.json())):
+    for count in range(len(stations)):
         # Get all the info for stations
         station_info = requests.get \
-            (f"https://website-api.airvisual.com/v1/stations/{stations.json()[count]['id']}").json()
+            (f"https://website-api.airvisual.com/v1/stations/{stations[count]['id']}").json()
 
         stations_with_coordinates[station_info['name']] = \
             (station_info['coordinates']['latitude'], station_info['coordinates']['longitude'])
@@ -154,12 +168,14 @@ def get_station_coords(stations: json):
     return stations_with_coordinates
 
 
-# This function will get the data from the json file,
-# Returns: dictionary with all the sectors in the file {sector name: (latitude, longitude)}
-def get_city_sectors(sectors_json: json):
+# This function retrieves the nested data from the 
+# list only for the developed sections of the city,
+# Returns: dictionary with all the sectors in the file 
+#   format {sector name: (latitude, longitude)}
+def get_city_sectors(sectors: list):
     sectors_with_coordinates = {}
 
-    for sector in sectors_json['features']:
+    for sector in sectors['features']:
         if sector['properties']['comm_structure'] != 'UNDEVELOPED':
             myShape = shape(sector['geometry'])
             sectors_with_coordinates[sector['properties']['name']] = (myShape.centroid.y, myShape.centroid.x)
@@ -167,13 +183,16 @@ def get_city_sectors(sectors_json: json):
     return sectors_with_coordinates
 
 
-# This function will create a df based on the dictionary passed as well as fix its indexes
+# This function will create a df based on the 
+# dictionary passed, fixes their indexes, and 
+# changes the column names to improve readability
 # Return: pandas dataframe
-def sector_to_df(sectors_mapped: dict):
+def sector_to_df(sectors_with_coords: dict):
     # Convert Dictionary to dataframe
     sectors_df = pd.DataFrame.from_dict(
-        sectors_mapped,
-        orient='index')
+        sectors_with_coords,
+        orient='index'
+    )
 
     # Fix indexes and column names
     sectors_df = sectors_df.reset_index().rename(columns={
@@ -181,16 +200,18 @@ def sector_to_df(sectors_mapped: dict):
         '0': 'y_coord',
         '1': 'x_coord' 
     })
-
     
     return sectors_df
 
 
-import numpy as np
-from scipy.interpolate import RBFInterpolator
-
-# Using the aqi from the stations we will estimate the aqi of a sector using
-# Interpolation distance weight
+# This function converts the dataframe containing the data for 
+# each sector into a 2D List to be used by the SciPy method to 
+# estimate the aqi of a sector using a linear, radial based function
+# @param: pd.DataFrame containing aqi for all stations
+# @param: dictionary containing coordinate data for all stations
+#   format {sector_name: (lat, lon)}
+# Returns: dictionary containing interpolated data
+#   format {sectors_name: interpolated aqi rounded to 2 decimal places}
 def get_aqi_with_RBF(aqi_df: pd.DataFrame, sectors_with_coordinates: dict):
     sector_aqi_interpolated_dict = {}
     
