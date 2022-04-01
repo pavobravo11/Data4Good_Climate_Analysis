@@ -27,7 +27,7 @@ Historical emissions and air quality data were collected from the City of Calgar
 <h3 id="history">Calgary's Climate History</h3>
 
 <h4>Calgary Emissions Report - Power BI</h4>
-<iframe title="Calgary Emissions Data" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=8b17e4e0-9aef-4010-be63-2d72dc58747c&autoAuth=true&ctid=1060fcd0-cf23-448a-9daa-faad4b730632&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLWNhbmFkYS1jZW50cmFsLWItcHJpbWFyeS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>
+<iframe title="Community-wide_Greenhouse_Gas__GHG__Inventory" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiMzRhZDBkNWYtZTIyZC00NGE5LWE4YWYtZmFmOGU5ZjQxNGM1IiwidCI6IjEwNjBmY2QwLWNmMjMtNDQ4YS05ZGFhLWZhYWQ0YjczMDYzMiJ9&pageName=ReportSection" frameborder="0" allowFullScreen="true"></iframe>
 
 <h4 >Calgary Average AQI vs Traffic in the City</h4>
 <img src="aiq_traffic.png" alt="Traffic History from Calgary" style="width:1100px;height:500px;">
@@ -80,7 +80,7 @@ and further examination might be needed.
         • United Nations Climate Action
     </a><br>
 
-<h3>Real-Time Data Twitter Bot (Made by us)</h3>
+<h3>Real-Time Data Twitter Bot (Made by Us)</h3>
     <a href="https://twitter.com/climateYYC45" target="_blank" rel="noopener noreferrer">
         • Twitter Link
     </a><br>
