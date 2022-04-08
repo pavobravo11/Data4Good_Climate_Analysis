@@ -114,7 +114,7 @@ def runner():
                 x=data_for_display.index,
                 y=data_for_display["Average Daily Value"],
                 text=data_for_display["txt"],
-                name=f"{station} - ${data_names[dni]}",
+                name=f"Actual ${data_names[dni]}",
                 yaxis="y" if dni == 0 else f"y{dni+1}",
                 line={"color": f"#{y_colors[dni]}"},
                 visible=True if i == 0 else False,
@@ -125,7 +125,7 @@ def runner():
                     x=pframe.index,
                     y=pframe["Average Daily Value"],
                     text=pframe["txt"],
-                    name=f"{station} - Forecast ${data_names[dni]}",
+                    name=f"Forecast ${data_names[dni]}",
                     yaxis="y" if dni == 0 else f"y{dni+1}",
                     line={"color": f"#{y_colors[dni]}", "dash": "dot"},
                     visible=True if i == 0 else False
@@ -135,7 +135,7 @@ def runner():
                     x=[],
                     y=[],
                     text=[],
-                    name=f"{station} - Forecast ${data_names[dni]}",
+                    name=f"Forecast ${data_names[dni]}",
                     yaxis="y" if dni == 0 else f"y{dni+1}",
                     line={"color": f"#{y_colors[dni]}", "dash": "dot"},
                     visible=True if i == 0 else False
@@ -176,7 +176,7 @@ def runner():
                 (1 / len(y_colors) * i),
                 (1 / len(y_colors) * (i + 1)) - 0.01
             ],
-            "title": units[i],
+            "title": f"{data_names[i]} ({units[i]})" if units[i] != "AQI" else "AQI",
             "linecolor": f"#{y_colors[i]}",
             "tickfont": {"color": f"#{y_colors[i]}"},
             "titlefont": {"color": f"#{y_colors[i]}"},
