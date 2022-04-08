@@ -23,7 +23,7 @@ def runner():
         dragmode="zoom",
         hovermode="x",
         legend=dict(traceorder="reversed"),
-        height=600,
+        height=1200,
         margin=dict(
             t=100,
             b=100
@@ -114,7 +114,7 @@ def runner():
                 x=data_for_display.index,
                 y=data_for_display["Average Daily Value"],
                 text=data_for_display["txt"],
-                name=f"Actual ${data_names[dni]}",
+                name=f"Actual",
                 yaxis="y" if dni == 0 else f"y{dni+1}",
                 line={"color": f"#{y_colors[dni]}"},
                 visible=True if i == 0 else False,
@@ -125,7 +125,7 @@ def runner():
                     x=pframe.index,
                     y=pframe["Average Daily Value"],
                     text=pframe["txt"],
-                    name=f"Forecast ${data_names[dni]}",
+                    name=f"Forecast",
                     yaxis="y" if dni == 0 else f"y{dni+1}",
                     line={"color": f"#{y_colors[dni]}", "dash": "dot"},
                     visible=True if i == 0 else False
@@ -135,7 +135,7 @@ def runner():
                     x=[],
                     y=[],
                     text=[],
-                    name=f"Forecast ${data_names[dni]}",
+                    name=f"Forecast",
                     yaxis="y" if dni == 0 else f"y{dni+1}",
                     line={"color": f"#{y_colors[dni]}", "dash": "dot"},
                     visible=True if i == 0 else False
@@ -179,7 +179,7 @@ def runner():
             "title": f"{data_names[i]} ({units[i]})" if units[i] != "AQI" else "AQI",
             "linecolor": f"#{y_colors[i]}",
             "tickfont": {"color": f"#{y_colors[i]}"},
-            "titlefont": {"color": f"#{y_colors[i]}"},
+            "titlefont": {"color": f"#{y_colors[i]}", "size": 5},
         }
         axis_params[f"yaxis{i + 1}" if i else "yaxis"] = {**common_params, **specific_params}
 
