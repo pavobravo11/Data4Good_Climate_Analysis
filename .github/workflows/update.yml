@@ -16,11 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install poetry
-        run: |
-          curl -O -sSL https://install.python-poetry.org/install-poetry.py
-          python install-poetry.py -y --version 1.1.12
-          echo "PATH=${HOME}/.poetry/bin:${PATH}" >> $GITHUB_ENV
-          rm install-poetry.py
+        run: pipx install poetry
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
@@ -28,11 +24,13 @@ jobs:
         with:
           python-version: "3.10.2"
           cache: 'poetry'
-      - run: poetry install --no-dev
+      - run: |
+          poetry env use 3.10.2
+          poetry install --no-dev
       - run: python -V
       - run: poetry run python -V
-      - run: poetry run ./AQScripts.py
-      - run: poetry run ./HistoricalGraph.py
+      - run: poetry run python ./AQScripts.py
+      - run: poetry run python ./HistoricalGraph.py
       - name: Setup markdown-styles
         run: npm install -g markdown-styles
       - name: Generate website
