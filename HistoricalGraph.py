@@ -23,7 +23,7 @@ def runner():
         dragmode="zoom",
         hovermode="x",
         legend=dict(traceorder="reversed"),
-        height=1200,
+        height=900,
         margin=dict(
             t=100,
             b=100
@@ -179,7 +179,7 @@ def runner():
             "title": f"{data_names[i]} ({units[i]})" if units[i] != "AQI" else "AQI",
             "linecolor": f"#{y_colors[i]}",
             "tickfont": {"color": f"#{y_colors[i]}"},
-            "titlefont": {"color": f"#{y_colors[i]}", "size": 5},
+            "titlefont": {"color": f"#{y_colors[i]}", "size": 14},
         }
         axis_params[f"yaxis{i + 1}" if i else "yaxis"] = {**common_params, **specific_params}
 
