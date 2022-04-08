@@ -18,27 +18,16 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.10"
-      - name: Setup markdown-styles
-        run: npm install -g markdown-styles
-      - name: Setup poetry
-        uses: abatilo/actions-poetry@v2.0.0
-      - name: Setup caching
-        uses: actions/cache@v3
-        with:
-          path: |
-            .venv
-          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
-      - name: Install dependencies
+          cache: 'poetry'
         run: |
-          poetry config virtualenvs.in-project true --local
           poetry install --no-dev
-      - name: Update map
-        run: |
           poetry run python ./AQScripts.py
           poetry run python ./HistoricalGraph.py
+      - name: Setup markdown-styles
+        run: npm install -g markdown-styles
       - name: Generate website
         run:  generate-md --layout layout
       - name: Publish website
