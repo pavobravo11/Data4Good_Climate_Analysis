@@ -24,6 +24,7 @@ jobs:
           cache: 'poetry'
       - name: Get python stuff running
         run: |
+          pip install poetry
           poetry install --no-dev
           poetry run python ./AQScripts.py
           poetry run python ./HistoricalGraph.py
