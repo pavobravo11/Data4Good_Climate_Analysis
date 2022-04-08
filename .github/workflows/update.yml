@@ -22,6 +22,7 @@ jobs:
         with:
           python-version: "3.10"
           cache: 'poetry'
+      - name: Get python stuff running
         run: |
           poetry install --no-dev
           poetry run python ./AQScripts.py
