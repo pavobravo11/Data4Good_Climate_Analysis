@@ -30,7 +30,6 @@ jobs:
       - run: python -V
       - run: poetry run python -V
       - run: poetry run python ./AQScripts.py
-      - run: poetry run python ./tweetImageOnly.py
       - run: poetry run python ./HistoricalGraph.py
       - name: Setup markdown-styles
         run: npm install -g markdown-styles
