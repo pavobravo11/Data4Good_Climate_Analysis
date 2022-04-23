@@ -30,12 +30,6 @@ jobs:
       - run: python -V
       - run: poetry run python -V
       - run: poetry run python ./AQScripts.py
-      - run: poetry run python ./tweetImageOnly.py
-        env:
-          CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
-          CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
       - run: poetry run python ./HistoricalGraph.py
       - name: Setup markdown-styles
         run: npm install -g markdown-styles
